@@ -1,0 +1,171 @@
+---
+title: "Untitled"
+author: "Habet Madoyan"
+date: "June 12, 2018"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+install.packages("RColorBrewer")
+library(ggmap)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(RColorBrewer)
+```
+
+
+```{r}
+load('gg.rda')
+str(gg)
+```
+
+\pagebreak
+```{r}
+summary(gg)
+```
+
+```{r}
+month_s <- gg %>%
+  group_by(month = floor_date(created_at, unit="month")) %>%
+  summarize(count = n())
+
+```
+
+
+```{r}
+jpeg('month_final.jpg')
+options(scipen=10000)
+ggplot(data = month_s, aes(x=month, y=count))+geom_bar(stat="identity") +  labs(title="GG Taxi orders by month", x="Day", y="Frequency")
+dev.off()
+```
+
+```{r}
+day_s <- gg %>%
+  group_by(day = floor_date(created_at, unit="day")) %>%
+  summarize(count = n())
+day_s
+```
+
+```{r}
+jpeg('day_final_final.jpg')
+options(scipen=10000)
+ggplot(day_s, aes(x=day, y=count))+geom_bar(stat="identity")+
+  labs(title="GG Taxi orders by day", x="Day", y="Frequency")
+
+newdata <- day_s[order(-day_s$count),]
+head(newdata, n = 10)
+dev.off()
+```
+
+```{r}
+
+hour_s <- gg %>%
+  group_by(hour = floor_date(created_at, unit="hour")) %>% summarize(count = n())
+hours <-  hour_s %>% group_by(int_hour = hour((hour_s[[1,]]))) %>% summarize(overall = sum(count))
+hours$int_hour <- hours$int_hour + 4
+
+```
+
+```{r}
+jpeg('hour_final1.jpg')
+options(scipen=10000)
+ggplot(hours, aes(x=int_hour, y=overall))+geom_bar(stat="identity")+
+  labs(title="GG Taxi orders by hour", x="Hour", y="Frequency")
+dev.off()
+```
+```{r}
+month1 <- gg %>%
+  filter(created_at >= "2016-09-01" & created_at < "2016-10-01")
+dim(month1)
+```
+\pagebreak
+
+
+```{r}
+lunchtime <- month1 %>% filter(hour(arrived_at) == 10)
+```
+
+\pagebreak
+
+
+```{r}
+yvn <- c(lon = 44.513490, lat = 40.177600)
+map_yerevan <- get_googlemap(yvn,maptype ="roadmap", zoom = 14, scale = 2, key = "AIzaSyC8XXMKNuPyjsl1RIaNUREpE8XLfdkjSXQ")
+
+ggmap(map_yerevan)
+```
+
+
+```{r}
+
+ggmap(map_yerevan) +
+  geom_point(aes(originLng, originLat, alpha = 0.8), data = lunchtime[0:500,],  na.rm = T, color = "red")
+
+```
+
+```{r}
+ggmap(map_yerevan) +
+  geom_point(aes(destLng, destLat, alpha = 0.8), data = lunchtime[0:500,], na.rm = TRUE , color = "red")
+```
+
+```{r}
+aua <- c(lon = 44.50490, lat = 40.1925)
+aua_map <- get_googlemap(aua,maptype ="roadmap", zoom = 16, scale = 2, key = "AIzaSyC8XXMKNuPyjsl1RIaNUREpE8XLfdkjSXQ")
+
+ggmap(aua_map)
+```
+
+```{r}
+aua <- gg %>%
+  filter(destLng >= 44.5038 & destLng <= 44.5060 & destLat > 40.1915 & destLat < 40.1930)
+dim(aua)
+```
+
+```{r}
+ggmap(aua_map) +
+  geom_point(aes(destLng, destLat, alpha = 0.8, col = "red"), data = aua, na.rm = TRUE)
+
+```
+
+```{r}
+aua1 <- aua %>% group_by(hour = ceiling_date(arrived_at, unit="hour")) %>% summarize(count = n())
+hour(aua1[[1,]])
+aua2 <- aua1 %>% group_by(int_hour = hour(aua1[[1,]]))
+aua3 <- aua2 %>% summarize(overall = sum(count))
+
+aua3$int_hour = aua3$int_hour + 4
+```
+
+```{r}
+
+options(scipen=10000)
+ggplot(aua3, aes(x=int_hour, y=overall))+geom_bar(stat="identity")+
+  labs(title="AUA arrivals", x="Hour", y="Frequency") 
+
+```
+
+
+```{r}
+sunday <- gg %>%
+  mutate(weekday  = weekdays(gg$created_at)) %>% filter(weekday  == "Կիրակի")
+
+sundays <- sunday %>% group_by(hour = ceiling_date(arrived_at, unit="hour"))%>% summarize(count = n())
+sundays1$int_hour = sundays1$int_hour + 4 
+sundays1 <- sundays %>% group_by(int_hour = hour(sundays[[1,]]))
+sund = sundays1 %>% summarize(overall = sum(count))
+```
+
+```{r}
+jpeg('sundaying.jpg')
+str(sund)
+sund$int_hour = as.factor(sund$int_hour)
+options(scipen=10000)
+ggplot(sund, aes(x=int_hour, y=overall))+geom_bar(stat="identity")+
+  labs(title="Friday", x="Hour", y="Frequency")
+dev.off()
+
+(hour(gg$created_at)) <- (hour(gg$created_at)) + 4 
+```
