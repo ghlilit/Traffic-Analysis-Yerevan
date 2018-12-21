@@ -1,6 +1,6 @@
 # Traffic-Analysis-Yerevan
 This is an R project to analyze Yerevan's traffic for bettter decision making. 
-The analysis is done using taxi orders from Armenian taxi company called GG. 
+<p> The analysis is done using taxi orders from Armenian taxi company called GG. </p>
 The files include
 
 1. R Markdown file of the analysis
