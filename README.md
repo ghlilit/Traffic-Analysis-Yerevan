@@ -4,5 +4,5 @@ This is an R project to analyze Yerevan's traffic for bettter decision making. T
 
 
 1. R Markdown file of the analysis
-2. Presentaion of the final result
+2. Presentation of the final result
 3. Report paper
